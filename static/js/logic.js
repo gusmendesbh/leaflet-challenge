@@ -1,13 +1,13 @@
 // use D3 to extract earthquake information from json url
 const url = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson';
 
-// Adding overlays
+//overlays
 var earthquakeLayer = new L.layerGroup();
 var overlays = {
     Earthquakes: earthquakeLayer
 }
 
-// Adding the tile layer
+// tile layer
 var geoLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href=https://www.openstreetmap.org/copyright>OpenStreetMap</a> contributors'
 })
@@ -18,7 +18,7 @@ var baseLayers = {
 } 
 
 
-// Creating the map object
+// map object
 var myMap = L.map("map", {
     center: [37.6000, -95.6650],
     zoom: 5, 
@@ -27,7 +27,7 @@ var myMap = L.map("map", {
 });
 
 
-// Getting the colors for the circles and legend based on depth
+// defining colors
 function getColor(depth) {
     return depth >= 90 ? "#FF0000" :
         depth < 90 && depth >= 70 ? "#EE7419" :
@@ -37,7 +37,7 @@ function getColor(depth) {
                                     "#8DFF33";
 }
 
-// Drawing the circles
+// leaflet circles
 function drawCircle(point, latlng) {
     let mag = point.properties.mag;
     let depth = point.geometry.coordinates[2];
@@ -50,7 +50,7 @@ function drawCircle(point, latlng) {
     })
 }
 
-// Displaying info when the feature is clicked
+// popup info
 function bindPopUp(feature, layer) {
     layer.bindPopup(`Location: ${feature.properties.place} <br> Magnitude: ${feature.properties.mag} <br> Depth: ${feature.geometry.coordinates[2]}`);
 }
@@ -58,13 +58,12 @@ function bindPopUp(feature, layer) {
 
 d3.json(url).then((data) => {
     var features = data.features;
-     // Creating a GeoJSON layer with the retrieved data
     L.geoJSON(features, {
         pointToLayer: drawCircle,
         onEachFeature: bindPopUp
     }).addTo(earthquakeLayer);
 
-    // Setting up the legend
+    // legend
     var legend = L.control({position: 'bottomright'});
 
     legend.onAdd = () => {
@@ -72,7 +71,7 @@ d3.json(url).then((data) => {
         labels = ['<strong>Depth:<br></strong>'];
         grades = [-10, 10, 30, 50, 70, 90];
         div.innerHTML = labels.join('<br>');
-        // Looping through our intervals and generating a label with a colored square for each interval
+    
         for (var i = 0; i < grades.length; i++) {
             div.innerHTML +=
                 '<i style="background:' + getColor(grades[i] + 1) + '"></i> ' +
